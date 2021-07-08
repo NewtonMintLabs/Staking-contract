@@ -175,13 +175,13 @@ contract LpStaking is ReentrancyGuard, Ownable {
         emit Staked(_msgSender(), amount);
     }
 
-    function withdrawable(uint256 index)
+    function withdrawable(address account, uint256 index)
         public
         view
         returns (bool)
     {
 
-        StakeInfo[] storage staker = _stakers[_msgSender()];
+        StakeInfo[] storage staker = _stakers[account];
         require(staker.length > index && index >= 0, "Stake: Invalid index.");
 
         uint256 stakedPeriod = getPeriod(staker[index].stakedTime, block.timestamp);
