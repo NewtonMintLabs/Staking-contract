@@ -99,6 +99,16 @@ contract LpStaking is ReentrancyGuard, Ownable {
         return staker[index].amount.mul(calcMultiplier(staker[index].lockWeek));
     }
 
+    function getStakedPeriod(address account, uint256 index)
+        public
+        view
+        returns (uint256)
+    {
+        StakeInfo[] memory staker = _stakers[account];
+        uint256 stakedPeriod = getPeriod(staker[index].stakedTime, block.timestamp);
+        return stakedPeriod;
+    }
+
     function getStakedCount(address account)
         public
         view
@@ -163,6 +173,20 @@ contract LpStaking is ReentrancyGuard, Ownable {
             amount.mul(calcMultiplier(lockWeek))
         );
         emit Staked(_msgSender(), amount);
+    }
+
+    function withdrawable(uint256 index)
+        public
+        view
+        returns (bool)
+    {
+
+        StakeInfo[] storage staker = _stakers[_msgSender()];
+        require(staker.length > index && index >= 0, "Stake: Invalid index.");
+
+        uint256 stakedPeriod = getPeriod(staker[index].stakedTime, block.timestamp);
+
+        return (stakedPeriod > uint256(staker[index].lockWeek).mul(1 weeks));
     }
 
     function withdraw(uint256 index, uint256 amount) public nonReentrant {
